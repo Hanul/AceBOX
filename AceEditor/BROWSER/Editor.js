@@ -14,6 +14,7 @@ AceEditor.Editor = CLASS({
 		//REQUIRED: params
 		//REQUIRED: params.name
 		//OPTIONAL: params.mode
+		//OPTIONAL: params.theme
 		//OPTIONAL: params.value
 
 		var
@@ -25,6 +26,9 @@ AceEditor.Editor = CLASS({
 		
 		// mode
 		mode = params.mode,
+		
+		// theme
+		theme = params.theme,
 		
 		// dom
 		dom,
@@ -45,7 +49,10 @@ AceEditor.Editor = CLASS({
 		setValue,
 		
 		// set mode.
-		setMode;
+		setMode,
+		
+		// set theme.
+		setTheme;
 
 		dom = DIV();
 
@@ -90,11 +97,23 @@ AceEditor.Editor = CLASS({
 		}
 		
 		self.setMode = setMode = function(mode) {
-			session.setMode('ace/mode/' + mode.toLowerCase());
+			//REQUIRED: mode
+			
+			session.setMode('ace/mode/' + mode);
 		};
 		
 		if (mode !== undefined) {
 			setMode(mode);
+		}
+		
+		self.setTheme = setTheme = function(theme) {
+			//REQUIRED: theme
+			
+			aceEditor.setTheme('ace/theme/' + theme);
+		};
+		
+		if (theme !== undefined) {
+			setTheme(theme);
 		}
 	}
 });

@@ -10,14 +10,14 @@ AceEditorKitchenSink.Home = CLASS({
 		'use strict';
 
 		var
-		// wrapper
-		wrapper,
+		// layout
+		layout,
 		
 		// option form
 		optionForm,
 		
-		// right
-		right,
+		// content
+		content,
 		
 		// editor
 		editor,
@@ -27,114 +27,189 @@ AceEditorKitchenSink.Home = CLASS({
 
 		TITLE('Ace Editor BOX Kitchen Sink');
 
-		wrapper = DIV({
-			c : [
+		layout = Yogurt.MenuLayout({
 			
-			// left
-			DIV({
+			toolbar : Yogurt.Toolbar({
+
 				style : {
-					position : 'fixed',
-					overflowY : 'scroll',
-					width : 280,
-					backgroundColor : '#0E62A5',
 					onDisplayResize : function(width, height) {
-						return {
-							height : height
-						};
+						if (width > Yogurt.MenuLayout.getHideMenuWinWidth()) {
+							return {
+								display : 'none'
+							};
+						} else {
+							return {
+								display : 'block'
+							};
+						}
 					}
 				},
-				c : DIV({
+
+				// left
+				left : Yogurt.ToolbarButton({
+					img : IMG({
+						src : Yogurt.R('menu.png')
+					}),
+					on : {
+						tap : function(e) {
+							layout.toggleLeftMenu();
+						}
+					}
+				}),
+
+				// title
+				title : H1({
 					style : {
-						paddingTop : 10
+						cursor : 'pointer'
+					},
+					c : 'Ace Editor BOX',
+					on : {
+						tap : function(e) {
+							AceEditorKitchenSink.GO('');
+							e.stopDefault();
+						}
+					}
+				})
+			}),
+
+			leftMenu : DIV({
+				style : {
+					paddingTop : 10
+				},
+				c : [
+				
+				// logo
+				H1({
+					style : {
+						textAlign : 'center'
+					},
+					c : IMG({
+						style : {
+							width : 134
+						},
+						src : AceEditorKitchenSink.R('ace-logo.png')
+					})
+				}),
+				
+				optionForm = FORM({
+					style : {
+						fontSize : 12
 					},
 					c : [
 					
-					// logo
-					H1({
+					// modes
+					TABLE({
 						style : {
-							textAlign : 'center'
+							borderCollapse : 'separate',
+							borderSpacing : 5
 						},
-						c : IMG({
-							style : {
-								width : 134
-							},
-							src : AceEditorKitchenSink.R('ace-logo.png')
-						})
+						c : [TR({
+							c : [TD({
+								style : {
+									textAlign : 'right'
+								},
+								c : 'Document'
+							}), TD({
+								c : SELECT({
+									name : 'mode',
+									c : [OPTGROUP({
+										label : 'Mode Examples',
+										c : RUN(function() {
+											
+											var
+											// options
+											options = [];
+											
+											EACH(AceEditorKitchenSink.SUPPORTED_MODES, function(v, mode) {
+												options.push(OPTION({
+													value : mode
+												}));
+											});
+											
+											return options;
+										})
+									}), OPTGROUP({
+										label : 'Huge documents',
+										c : OPTION({
+											value : 'ace.js'
+										})
+									})],
+									on : {
+										change : function() {
+											loadEditor();
+										}
+									}
+								})
+							})]
+						}), TR({
+							c : [TD({
+								style : {
+									textAlign : 'right'
+								},
+								c : 'Theme'
+							}), TD({
+								c : SELECT({
+									name : 'theme',
+									c : [OPTGROUP({
+										label : 'Bright',
+										c : RUN(function() {
+											
+											var
+											// options
+											options = [];
+											
+											EACH(AceEditorKitchenSink.THEMES, function(themes) {
+												if (themes[2] === undefined) {
+													options.push(OPTION({
+														value : themes[1] === undefined ? themes[0] : themes[1],
+														c : themes[0]
+													}));
+												}
+											});
+											
+											return options;
+										})
+									}), OPTGROUP({
+										label : 'Dark',
+										c : RUN(function() {
+											
+											var
+											// options
+											options = [];
+											
+											EACH(AceEditorKitchenSink.THEMES, function(themes) {
+												if (themes[2] === 'dark') {
+													options.push(OPTION({
+														value : themes[1] === undefined ? themes[0] : themes[1],
+														c : themes[0]
+													}));
+												}
+											});
+											
+											return options;
+										})
+									})],
+									on : {
+										change : function() {
+											loadEditor();
+										}
+									}
+								})
+							})]
+						})]
 					}),
 					
-					optionForm = FORM({
-						style : {
-							marginTop : 10
-						},
-						c : [
+					// options
+					TABLE({
 						
-						// modes
-						TABLE({
-							c : [TR({
-								c : [TD({
-									style : {
-										textAlign : 'right',
-										paddingRight : 10
-									},
-									c : 'Document'
-								}), TD({
-									c : SELECT({
-										name : 'mode',
-										c : [OPTGROUP({
-											label : 'Mode Examples',
-											c : RUN(function() {
-												
-												var
-												// options
-												options = [];
-												
-												EACH(AceEditorKitchenSink.SUPPORTED_MODES, function(v, mode) {
-													options.push(OPTION({
-														value : mode
-													}));
-												});
-												
-												return options;
-											})
-										}), OPTGROUP({
-											label : 'Huge documents',
-											c : OPTION({
-												value : 'ace.js'
-											})
-										})],
-										on : {
-											change : function() {
-												loadEditor();
-											}
-										}
-									})
-								})]
-							})]
-						}),
-						
-						// options
-						TABLE({
-							
-						})]
 					})]
-				})
+				})]
 			}),
 			
-			// right
-			right = DIV({
-				style : {
-					paddingLeft : 280,
-					onDisplayResize : function(width, height) {
-						return {
-							height : height
-						};
-					}
-				}
-			}),
+			c : content = DIV()
 			
-			CLEAR_BOTH()]
 		}).appendTo(BODY);
-		
+
 		loadEditor = RAR(function() {
 			
 			var
@@ -143,6 +218,9 @@ AceEditorKitchenSink.Home = CLASS({
 			
 			// mode
 			mode = options.mode,
+			
+			// theme
+			theme = options.theme,
 			
 			// filename
 			filename,
@@ -170,10 +248,15 @@ AceEditorKitchenSink.Home = CLASS({
 			
 			editor = AceEditor.Editor({
 				style : {
-					height : '100%'
+					onDisplayResize : function(width, height) {
+						return {
+							height : height
+						};
+					}
 				},
-				mode : mode
-			}).appendTo(right);
+				mode : mode.toLowerCase(),
+				theme : theme.toLowerCase()
+			}).appendTo(content);
 			
 			AceEditorKitchenSink.R(filename, function(content) {
 				editor.setValue(content);
@@ -181,7 +264,7 @@ AceEditorKitchenSink.Home = CLASS({
 		});
 
 		inner.on('close', function() {
-			wrapper.remove();
+			layout.remove();
 		});
 	}
 });
